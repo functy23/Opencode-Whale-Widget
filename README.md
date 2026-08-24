@@ -4,12 +4,11 @@
 
 DeepSeek Harness（DSH）Web 界面右下角的常驻用量挂件：小鲸鱼气泡图 + **OpenCode Go 用量额度**（5 小时 / 本周 / 本月，百分比 + 重置倒计时），每次打开界面自动启用。本项目是标准 DSH 插件包，可通过 `dsh plugin` 安装/卸载。
 
-本仓库 fork 自 [MeteorNOX/DeepSeek-Balance-Whale-Widget](https://github.com/MeteorNOX/DeepSeek-Balance-Whale-Widget)，数据源由 DeepSeek 余额接口替换为 OpenCode Go 官方用量接口（`zen/go/v1/usage`），登录体验与用量展示参考 [sidleo/UsageBar](https://github.com/sidleo/UsageBar)。
+本仓库 fork 自 [MeteorNOX/DeepSeek-Balance-Whale-Widget](https://github.com/MeteorNOX/DeepSeek-Balance-Whale-Widget)，数据源由 DeepSeek 余额接口替换为 OpenCode Go 官方用量接口（`zen/go/v1/usage`），用量展示参考 [sidleo/UsageBar](https://github.com/sidleo/UsageBar)。
 
 ## 特性
 
 - 🐋 **常驻自启**：随 DSH Web 界面每次打开自动出现（标准 DSH bundle 插件）
-- 🔑 **一键网页登录**：与 UsageBar 同款体验——挂件菜单点「登录」自动打开默认浏览器，输入验证码完成 OpenCode 认证（opencode CLI 同款设备码流程），凭据自动保存进 DSH 凭据库
 - 📊 **Opencode Go 用量**：直连官方接口 `GET zen/go/v1/usage`（Bearer API key），显示三个额度窗口
   - **5 小时额度**（rolling）/ **本周额度**（weekly）/ **本月额度**（monthly）
   - 主数字默认显示**最高**的窗口（`自动 (最高)`），菜单可切换固定窗口
@@ -34,7 +33,7 @@ opencode-whale-widget/
 ├── README.md             # 本文件
 ├── cordis.patch.yml      # 插件挂载声明
 ├── lib/
-│   └── index.js          # 宿主侧插件本体（官方用量 API + 设备码登录）
+│   └── index.js          # 宿主侧插件本体（官方用量 API 客户端）
 ├── assets/
 │   ├── DSH2.png          # README 顶部展示图
 │   ├── DSniang1.png      # 小鲸鱼本体（cut-out，气泡由代码绘制）
@@ -45,24 +44,14 @@ opencode-whale-widget/
 └── whale-widget-prompt.md # 上游完整规格/维护提示词（历史文档）
 ```
 
-## 登录与凭据（安装后必读）
+## 凭据（安装后必读）
 
-### API Key（用量数据源）
+挂件用量数据来自官方接口，需要一个工作区 API Key：
 
 1. 打开 https://opencode.ai/console → 对应工作区 → **Keys** 页面创建 API key（`sk-...` 或 `opencode-...`）
 2. 把 key 配置为 DSH 凭据 `OPENCODE_GO_API_KEY`（DSH 凭据服务 / `~/.dsh/.credentials.yaml`）
 
 挂件将直连官方接口 `GET https://opencode.ai/zen/go/v1/usage`，接口返回精确的百分比与重置时间。
-
-### 网页登录（设备码，默认浏览器）
-
-挂件**菜单 → 账号 → 登录**：
-
-1. 插件自动打开默认浏览器到 OpenCode 设备验证页（与 opencode CLI 登录同款流程）
-2. 鲸鱼气泡显示验证码，在浏览器里登录 OpenCode（GitHub/Google）并输入验证码
-3. 验证成功后 access/refresh token 自动保存为 `OPENCODE_ACCESS_TOKEN` / `OPENCODE_REFRESH_TOKEN`
-
-> 说明：设备码拿到的 OAuth token 用于账号验证（可访问 `/console/api/user`、`/console/api/orgs`），**用量显示仍需要上面的 API Key**；菜单「登出」清除 OAuth 凭据。
 
 注意事项：
 
@@ -162,16 +151,14 @@ curl http://127.0.0.1:3080/dsh-whale/size.json
 
 ## 致谢
 
-- **[sidleo/UsageBar](https://github.com/sidleo/UsageBar)**：OpenCode Go 用量抓取方案（SSR HTML 解析）与登录体验的原型参考，本项目的 Cookie 通道解析逻辑直接对齐其实现
-- **[v587d/pi-ocgo-usage](https://github.com/v587d/pi-ocgo-usage)**（MIT）：SSR 解析正则与 API 路径分析的参考实现
+- **[sidleo/UsageBar](https://github.com/sidleo/UsageBar)**：OpenCode Go 用量展示与颜色分档的参考原型
 - **[MeteorNOX/DeepSeek-Balance-Whale-Widget](https://github.com/MeteorNOX/DeepSeek-Balance-Whale-Widget)**：上游挂件本体（鲸鱼娘 UI、拖拽、音效）
-- **[anomalyco/opencode](https://github.com/anomalyco/opencode)**：设备码登录流程（client_id=opencode-cli）与 Zen API 源码
+- **[anomalyco/opencode](https://github.com/anomalyco/opencode)**：Zen 官方 API 与用量接口源码参考
 
 ## 开发与维护
 
 - 上游完整规格、视觉参数见 `whale-widget-prompt.md`（历史文档，DeepSeek 版数据链路描述不再适用）。
 - 用量抓取逻辑在 `lib/index.js` 的 `fetchZenUsage` / `fetchOpencodeUsage`（官方接口 `GET /zen/go/v1/usage`，Bearer `OPENCODE_GO_API_KEY`）。
-- 设备码登录流程参考 [anomalyco/opencode](https://github.com/anomalyco/opencode)（client_id=opencode-cli）。
 
 ## 许可证
 
