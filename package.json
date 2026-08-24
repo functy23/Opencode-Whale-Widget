@@ -1,12 +1,13 @@
 {
   "name": "dsh-whale-widget",
-  "version": "0.2.9",
-  "description": "DSH Web 界面右下角的 DeepSeek 余额小鲸鱼挂件（含今日已用、峰谷定价、随机台词、音效与每轮消耗统计）",
+  "version": "0.3.0",
+  "description": "DSH Web 界面右下角的 Opencode Go 用量小鲸鱼挂件（5小时/本周/本月额度百分比与重置倒计时、随机台词、音效）",
   "keywords": [
     "dsh",
     "dsh-plugin",
     "deepseek-harness",
-    "balance",
+    "opencode",
+    "usage",
     "widget"
   ],
   "type": "module",
