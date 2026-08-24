@@ -1,4 +1,4 @@
-# DSH 小鲸鱼用量挂件（Opencode Usage Whale Widget）
+# Opencode 鲸鱼娘用量挂件（dsh-opencode-whale-widget）
 
 ![DSH 小鲸鱼用量挂件](assets/DSH2.png)
 
@@ -28,7 +28,7 @@ DeepSeek Harness（DSH）Web 界面右下角的常驻用量挂件：小鲸鱼气
 ## 目录结构
 
 ```text
-opencode-whale-widget/
+dsh-opencode-whale-widget/
 ├── package.json          # DSH bundle 插件元数据
 ├── README.md             # 本文件
 ├── cordis.patch.yml      # 插件挂载声明
@@ -69,38 +69,38 @@ dsh plugin --profile web add link:.
 
 说明：
 
-- `dsh plugin` 会把参数转发给 pnpm，并在成功后自动把 `dsh-whale-widget` 加入 `dsh.profile.bundles`
+- `dsh plugin` 会把参数转发给 pnpm，并在成功后自动把 `dsh-opencode-whale-widget` 加入 `dsh.profile.bundles`
 - **`link:.` 表示链接当前目录**（仓库根目录本身就是插件包）。如果你复制了仓库到别处，用绝对路径：
   ```powershell
-  dsh plugin --profile web add link:D:\你的路径\DeepSeek-Balance-Whale-Widget
+  dsh plugin --profile web add link:D:\你的路径\Opencode-Whale-Widget
   ```
-- ⚠️ 不要用 `link:.\dsh-whale-widget`——仓库里**没有** `dsh-whale-widget/` 子目录，这样会安装成普通依赖而非插件，重启后挂件不出现
+- ⚠️ 不要用 `link:.\dsh-opencode-whale-widget`——仓库里**没有** `dsh-opencode-whale-widget/` 子目录，这样会安装成普通依赖而非插件，重启后挂件不出现
 - 安装完成后重启 `dsh web`，再 F5 刷新浏览器
-- **如果之后移动了源码目录**，必须重新执行一次 `dsh plugin --profile web add link:.<新路径>`。若提示已存在/冲突，先 `dsh plugin --profile web remove dsh-whale-widget` 再重新 add
+- **如果之后移动了源码目录**，必须重新执行一次 `dsh plugin --profile web add link:.<新路径>`。若提示已存在/冲突，先 `dsh plugin --profile web remove dsh-opencode-whale-widget` 再重新 add
 
 ### 方式 B：发布到 npm 后安装
 
 ```powershell
-dsh plugin --profile web add dsh-whale-widget
+dsh plugin --profile web add dsh-opencode-whale-widget
 ```
 
 ### 给 AI 的安装说明（用 dsh 辅助安装时，直接复制给 AI）
 
 ```
-请帮我安装插件 dsh-whale-widget（Opencode 用量鲸鱼挂件）。
+请帮我安装插件 dsh-opencode-whale-widget（Opencode 用量鲸鱼挂件）。
 
 步骤：
 1. 确保 pnpm 可用（没有就先：npm install -g pnpm）
 2. 在 Web profile 安装：
-   dsh plugin --profile web add dsh-whale-widget
+   dsh plugin --profile web add dsh-opencode-whale-widget
    如果要从本地仓库链接安装（例如本地克隆的仓库根目录），则用：
    dsh plugin --profile web add link:.<仓库绝对路径>
-   （注意：仓库根目录就是插件包，不要写成 link:.\dsh-whale-widget 这种带子目录的路径）
+   （注意：仓库根目录就是插件包，不要写成 link:.\dsh-opencode-whale-widget 这种带子目录的路径）
 3. 如果报 pnpm 阻止构建脚本（allowBuilds 相关），在 C:\Users\<用户名>\.dsh\profiles\web\pnpm-workspace.yaml 的 allowBuilds 下加对应的包 key，然后重跑
 4. 重启 dsh web，然后 F5 刷新浏览器
 
 安装后验证：
-- dsh --profile web --dump-config 应该能看到 dsh-whale-widget 在 bundles 里
+- dsh --profile web --dump-config 应该能看到 dsh-opencode-whale-widget 在 bundles 里
 - curl http://127.0.0.1:3080/dsh-whale/balance.json 应返回 200 JSON（含 windows.rolling/weekly/monthly）
 - curl http://127.0.0.1:3080/dsh-whale/widget.js 应返回 200 JS
 
@@ -110,14 +110,14 @@ dsh plugin --profile web add dsh-whale-widget
 ## 卸载
 
 ```powershell
-dsh plugin --profile web remove dsh-whale-widget
+dsh plugin --profile web remove dsh-opencode-whale-widget
 ```
 
 ## 从上游 DeepSeek 版迁移
 
 如果你之前用的是上游（DeepSeek 余额）版本：
 
-1. 卸载旧版：`dsh plugin --profile web remove dsh-whale-widget`，然后按上面方式安装本仓库
+1. 卸载旧版：`dsh plugin --profile web remove dsh-opencode-whale-widget`，然后按上面方式安装本仓库
 2. 凭据不再需要 `DEEPSEEK_API_KEY` / `DEEPSEEK_PLATFORM_TOKEN`，改配 `OPENCODE_GO_API_KEY`
 3. 旧账本文件 `$DSH_HOME/.dshw-usage.json`（鲸鱼记账）已不再使用，可手动删除
 
@@ -141,12 +141,12 @@ curl http://127.0.0.1:3080/dsh-whale/size.json
 
 ## 常见问题
 
-- **挂件不出现**：确认 `dsh plugin add` 成功；`dsh --profile web --dump-config` 里能看到 `dsh-whale-widget`；重启 `dsh web` 后 F5。
+- **挂件不出现**：确认 `dsh plugin add` 成功；`dsh --profile web --dump-config` 里能看到 `dsh-opencode-whale-widget`；重启 `dsh web` 后 F5。
 - **图片不显示**：确认 `assets/DSniang1.png` 在插件包内，且没有把旧文件放在 profile 里占用了同名路由。
 - **提示「未配置凭据 OPENCODE_GO_API_KEY」**：到 opencode 控制台 Keys 页面创建 API key，配置为 DSH 凭据 `OPENCODE_GO_API_KEY`。
 - **提示「官方用量接口 HTTP 4xx」**：API key 无效/已撤销，或工作区没有 OpenCode Go 订阅，请检查 key 与订阅。
 - **没有声音**：确认 `assets/*.mp3` 在包内；若不想带音效文件，静默降级为无声音。
-- **本地开发改了代码不生效**：使用 `link:` 安装时，修改源码后重启 `dsh web`（ESM 模块缓存）；如果用已发布版本，需要 `npm publish` 新版本后 `dsh plugin --profile web update dsh-whale-widget`。
+- **本地开发改了代码不生效**：使用 `link:` 安装时，修改源码后重启 `dsh web`（ESM 模块缓存）；如果用已发布版本，需要 `npm publish` 新版本后 `dsh plugin --profile web update dsh-opencode-whale-widget`。
 - **自定义图片**：气泡由代码绘制（SVG），鲸鱼本体为 cut-out PNG，放在右下角 59.45%；换图需保证透明背景 cut-out，否则按 `whale-widget-prompt.md` 调整几何参数。
 
 ## 致谢

@@ -55,7 +55,7 @@ jobs:
         id: check
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          CODE=$(curl -s -o /dev/null -w '%{http_code}' "https://registry.npmjs.org/dsh-whale-widget/${VERSION}")
+          CODE=$(curl -s -o /dev/null -w '%{http_code}' "https://registry.npmjs.org/dsh-opencode-whale-widget/${VERSION}")
           if [ "$CODE" = "200" ]; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
             echo "版本 ${VERSION} 已存在于 npm，跳过发布"
