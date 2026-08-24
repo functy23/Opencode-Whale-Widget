@@ -1,2 +1,3 @@
 .DS_Store
 assets/_backup_originals_*/
+*-smoke-test.mjs
