@@ -4,11 +4,12 @@
 
 DeepSeek Harness（DSH）Web 界面右下角的常驻用量挂件：小鲸鱼气泡图 + **OpenCode Go 用量额度**（5 小时 / 本周 / 本月，百分比 + 重置倒计时），每次打开界面自动启用。本项目是标准 DSH 插件包，可通过 `dsh plugin` 安装/卸载。
 
-本仓库 fork 自 [MeteorNOX/DeepSeek-Balance-Whale-Widget](https://github.com/MeteorNOX/DeepSeek-Balance-Whale-Widget)，数据源由 DeepSeek 余额接口替换为 OpenCode Go 用量页（抓取方式与 UsageBar / [v587d/pi-ocgo-usage](https://github.com/v587d/pi-ocgo-usage) 一致）。
+本仓库 fork 自 [MeteorNOX/DeepSeek-Balance-Whale-Widget](https://github.com/MeteorNOX/DeepSeek-Balance-Whale-Widget)，数据源由 DeepSeek 余额接口替换为 OpenCode Go 用量页（抓取方式与 [sidleo/UsageBar](https://github.com/sidleo/UsageBar) / [v587d/pi-ocgo-usage](https://github.com/v587d/pi-ocgo-usage) 一致）。
 
 ## 特性
 
 - 🐋 **常驻自启**：随 DSH Web 界面每次打开自动出现（标准 DSH bundle 插件）
+- 🔑 **一键网页登录**：与 UsageBar 同款体验——挂件菜单点「登录」自动打开默认浏览器，输入验证码完成 OpenCode 认证，凭据自动保存进 DSH 凭据库，无需手动复制 Cookie
 - 📊 **Opencode Go 用量**：抓取 `opencode.ai/workspace/<wrk>/go` 页面的 SSR 数据，显示三个额度窗口
   - **5 小时额度**（rolling）/ **本周额度**（weekly）/ **本月额度**（monthly）
   - 主数字默认显示**最高**的窗口（`自动 (最高)`），菜单可切换固定窗口
@@ -42,27 +43,33 @@ opencode-whale-widget/
 └── whale-widget-prompt.md # 上游完整规格/维护提示词（历史文档）
 ```
 
-## 必需的凭据（安装后必读）
+## 登录与凭据（安装后必读）
 
-挂件通过 **OpenCode 控制台会话 Cookie** 抓取 Go 用量页（官方 `/zen/go/v1/usage` 接口尚未部署，见 [anomalyco/opencode#16513](https://github.com/anomalyco/opencode/pull/16513)）。需要在 DSH 凭据服务中配置两个凭据：
+### 方式一：网页登录（推荐，零手动配置）
+
+挂件**菜单 → 账号 → 登录**：
+
+1. 插件自动打开你的默认浏览器到 OpenCode 设备验证页（与 opencode CLI 登录同款流程）
+2. 鲸鱼气泡显示 8 位验证码，在浏览器里登录 OpenCode（GitHub/Google）并输入验证码
+3. 验证成功后插件自动保存 `OPENCODE_ACCESS_TOKEN` / `OPENCODE_REFRESH_TOKEN` 到 DSH 凭据库，并自动从 OpenCode 页面提取 `OPENCODE_WORKSPACE_ID`
+4. 挂件立即开始显示用量；access token 过期后自动降级到 Cookie 通道（见下），重新点登录即可
+
+### 方式二：手动配置 Cookie（备选）
+
+官方 `/zen/go/v1/usage` 接口尚未部署（见 [anomalyco/opencode#16513](https://github.com/anomalyco/opencode/pull/16513)），Cookie 通道与 UsageBar 一致。在 DSH 凭据服务中配置：
 
 | 凭据名 | 内容 | 获取方式 |
 |---|---|---|
 | `OPENCODE_WORKSPACE_ID` | 工作区 ID（形如 `wrk_...`） | 打开 https://opencode.ai/workspace/xxx/go，从地址栏复制 `/workspace/` 后面的 `wrk_...` 部分 |
 | `OPENCODE_COOKIE` | 完整会话 Cookie 串 | 浏览器 F12 → Network → 刷新 `/go` 页面 → 找到该页面请求 → Request Headers → 复制 `Cookie` 头**整段值**（形如 `auth=...; oc_locale=zh; ...`） |
 
-配置示例（`~/.dsh/.credentials.yaml`）：
-
-```yaml
-OPENCODE_WORKSPACE_ID: wrk_01KZTBGJDXYXW8ZGTK4JJ08C7V
-OPENCODE_COOKIE: "auth=xxxxxxxx; oc_locale=zh"
-```
+抓取优先级：`OPENCODE_ACCESS_TOKEN`（Bearer）→ `OPENCODE_COOKIE`，401/403 自动换下一通道。
 
 注意事项：
 
-- ⚠️ Cookie 等同密码，请勿外泄或提交到仓库；过期（约几天）后需按上面步骤重新复制
+- ⚠️ Cookie 等同密码，请勿外泄或提交到仓库；过期（约几天）后重新登录或复制
 - 官方限流：服务端缓存 60 秒才抓一次页面，不会高频请求
-- 若解析失败，挂件会提示「Cookie 可能已过期，请重新配置 OPENCODE_COOKIE」
+- 若解析失败，挂件会提示重新登录或重新配置 Cookie
 
 ## 安装
 
@@ -155,6 +162,13 @@ curl http://127.0.0.1:3080/dsh-whale/size.json
 - **没有声音**：确认 `assets/*.mp3` 在包内；若不想带音效文件，静默降级为无声音。
 - **本地开发改了代码不生效**：使用 `link:` 安装时，修改源码后重启 `dsh web`（ESM 模块缓存）；如果用已发布版本，需要 `npm publish` 新版本后 `dsh plugin --profile web update dsh-whale-widget`。
 - **自定义图片**：气泡由代码绘制（SVG），鲸鱼本体为 cut-out PNG，放在右下角 59.45%；换图需保证透明背景 cut-out，否则按 `whale-widget-prompt.md` 调整几何参数。
+
+## 致谢
+
+- **[sidleo/UsageBar](https://github.com/sidleo/UsageBar)**：OpenCode Go 用量抓取方案（SSR HTML 解析）与登录体验的原型参考，本项目的 Cookie 通道解析逻辑直接对齐其实现
+- **[v587d/pi-ocgo-usage](https://github.com/v587d/pi-ocgo-usage)**（MIT）：SSR 解析正则与 API 路径分析的参考实现
+- **[MeteorNOX/DeepSeek-Balance-Whale-Widget](https://github.com/MeteorNOX/DeepSeek-Balance-Whale-Widget)**：上游挂件本体（鲸鱼娘 UI、拖拽、音效）
+- **[anomalyco/opencode](https://github.com/anomalyco/opencode)**：设备码登录流程（client_id=opencode-cli）与 Zen API 源码
 
 ## 开发与维护
 
